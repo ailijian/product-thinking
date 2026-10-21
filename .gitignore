@@ -1,0 +1,9 @@
+# 工具临时产物
+.dumate/
+.tmp/
+_tmp_script.js
+
+# 系统与编辑器文件
+.DS_Store
+Thumbs.db
+*.tmp

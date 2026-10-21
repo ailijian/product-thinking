@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>产品思维测试</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --ink: #111111;
+    --sub: #6b7280;
+    --line: #e5e7eb;
+    --soft: #f7f7f8;
+    --accent: #111111;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 32px 20px 48px;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .section { display: none; flex: 1; }
+  .section.active { display: block; }
+
+  /* 首页 */
+  .brand { margin-top: 12vh; margin-bottom: 28px; }
+  .brand h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; }
+  .brand .slogan { margin-top: 10px; color: var(--sub); font-size: 15px; }
+  .meta-row {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin: 26px 0 32px;
+  }
+  .meta-chip {
+    font-size: 13px; color: var(--sub);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 14px;
+  }
+  .btn {
+    display: block; width: 100%;
+    background: var(--accent); color: #fff;
+    font-size: 16px; font-weight: 600;
+    border: none; border-radius: 12px;
+    padding: 16px 0;
+    cursor: pointer;
+    transition: opacity .15s ease;
+  }
+  .btn:active { opacity: .8; }
+  .btn.ghost {
+    background: #fff; color: var(--ink);
+    border: 1px solid var(--line);
+  }
+  .history { margin-top: 40px; }
+  .history h2 { font-size: 13px; font-weight: 600; color: var(--sub); letter-spacing: .06em; margin-bottom: 10px; }
+  .history-list { list-style: none; }
+  .history-list li {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 2px; border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+  .history-list .score { font-weight: 600; }
+  .history-list .lvl { color: var(--sub); margin-left: 8px; }
+  .empty-tip { color: var(--sub); font-size: 13px; padding: 6px 2px; }
+
+  /* 答题页 */
+  .quiz-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .quiz-progress-text { font-size: 13px; color: var(--sub); }
+  .quiz-dim { font-size: 13px; color: var(--sub); }
+  .progress-track { width: 100%; height: 3px; background: var(--soft); border-radius: 2px; margin-bottom: 28px; overflow: hidden; }
+  .progress-bar { height: 100%; background: var(--accent); border-radius: 2px; transition: width .25s ease; }
+  .scenario { font-size: 19px; font-weight: 600; line-height: 1.5; margin-bottom: 22px; letter-spacing: -0.01em; }
+  .options { display: flex; flex-direction: column; gap: 12px; }
+  .option {
+    width: 100%; text-align: left;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 15px 16px;
+    font-size: 15px; color: var(--ink);
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .option:active { background: var(--soft); }
+  .option.sel { border-color: var(--accent); background: var(--soft); font-weight: 500; }
+  .quiz-footer { margin-top: 28px; display: none; }
+  .quiz-footer.show { display: block; }
+
+  /* 结果页 */
+  .result-head { text-align: center; margin-top: 8vh; }
+  .result-label { font-size: 13px; color: var(--sub); letter-spacing: .08em; }
+  .result-score { font-size: 64px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.15; margin-top: 4px; }
+  .result-level { display: inline-block; margin-top: 10px; font-size: 14px; font-weight: 600; border: 1px solid var(--accent); color: var(--accent); border-radius: 999px; padding: 4px 16px; }
+  .result-desc { color: var(--sub); font-size: 14px; margin-top: 12px; }
+  .sample-note {
+    margin: 24px auto 0; max-width: 420px;
+    font-size: 12px; color: var(--sub);
+    background: var(--soft); border-radius: 10px; padding: 10px 14px;
+  }
+  .radar-wrap { margin: 34px auto 8px; max-width: 320px; }
+  .radar-wrap svg { width: 100%; height: auto; display: block; }
+  .dim-list { margin: 10px 0 34px; }
+  .dim-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 13px 2px; border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+  .dim-item .dim-name { font-weight: 500; }
+  .dim-item .dim-val { font-weight: 600; }
+  .advice-block { margin-top: 34px; }
+  .advice-block h2 { font-size: 13px; font-weight: 600; color: var(--sub); letter-spacing: .06em; margin-bottom: 12px; }
+  .advice-card { border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px 16px; margin-bottom: 16px; }
+  .advice-card .a-dim { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+  .advice-card .a-score { font-size: 12px; color: var(--sub); margin-bottom: 12px; }
+  .advice-card .a-intro { font-size: 14px; color: var(--sub); margin-bottom: 14px; }
+  .advice-card .tier-label { font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: .06em; margin-bottom: 8px; }
+  .advice-card ol { padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
+  .advice-card li { font-size: 14px; }
+  .brief-card { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
+  .brief-card .b-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .brief-card .b-dim { font-weight: 600; font-size: 14px; }
+  .brief-card .b-score { font-size: 13px; color: var(--sub); }
+  .brief-card .b-intro { font-size: 13px; color: var(--sub); margin-top: 4px; }
+  .result-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 30px; }
+  .foot { margin-top: auto; padding-top: 40px; text-align: center; font-size: 12px; color: #9ca3af; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 首页 -->
+  <section id="home" class="section active">
+    <div class="brand">
+      <h1>产品思维测试</h1>
+      <p class="slogan">10 分钟，暴露你的思维盲区。</p>
+    </div>
+    <div class="meta-row">
+      <span class="meta-chip">10 题</span>
+      <span class="meta-chip">约 5 分钟</span>
+      <span class="meta-chip">5 个维度</span>
+    </div>
+    <button class="btn" id="btnStart">开始测试</button>
+    <div class="history">
+      <h2>最近成绩</h2>
+      <ul class="history-list" id="historyList"></ul>
+    </div>
+  </section>
+
+  <!-- 答题页 -->
+  <section id="quiz" class="section">
+    <div class="quiz-top">
+      <span class="quiz-progress-text" id="quizProgressText">第 1 / 10 题</span>
+      <span class="quiz-dim" id="quizDimLabel"></span>
+    </div>
+    <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+    <p class="scenario" id="scenarioText"></p>
+    <div class="options" id="optionsBox"></div>
+    <div class="quiz-footer" id="quizFooter">
+      <button class="btn" id="btnNext">下一题</button>
+    </div>
+  </section>
+
+  <!-- 结果页 -->
+  <section id="result" class="section">
+    <div class="result-head">
+      <div class="result-label">产品思维指数</div>
+      <div class="result-score" id="resultScore">--</div>
+      <div class="result-level" id="resultLevel">--</div>
+      <div class="result-desc" id="resultDesc"></div>
+    </div>
+    <div class="sample-note">本次为 10 题抽样作答，建议多次测试综合参考。</div>
+
+    <div class="radar-wrap" id="radarBox"></div>
+
+    <div class="dim-list" id="dimList"></div>
+
+    <div class="advice-block">
+      <h2>分维度建议</h2>
+      <div id="adviceBox"></div>
+    </div>
+
+    <div class="result-actions">
+      <button class="btn" id="btnRetry">重新测试</button>
+      <button class="btn ghost" id="btnHome">返回首页</button>
+    </div>
+  </section>
+
+  <div class="foot">产品思维测试 · v1.1</div>
+</div>
+
+<script>
+"use strict";
+
+/* ========== 题库数据（冻结题库 v1.1，20 题 = 5 维度 × 4 题） ========== */
+// 分值仅在判分时使用，前端不向用户展示。
+var QUESTIONS = [
+  /* —— 用户导向 —— */
+  { id: "1-1", dim: "user_orientation", scenario: "你有一个\"每天自动整理手机相册\"的产品想法，你觉得这个功能很实用。下一步你会怎么做？", options: [
+    { text: "马上开始开发，先做出 MVP 再说", score: 0 },
+    { text: "先问身边 5 个朋友是否愿意用", score: 1 },
+    { text: "先明确目标用户是谁，找到 5-10 个目标用户做访谈，了解他们整理相册的真实痛点和现有做法", score: 3 },
+    { text: "先搜索市场上是否已有类似产品", score: 2 }
+  ]},
+  { id: "1-2", dim: "user_orientation", scenario: "你在开发产品时，冒出一个\"很酷\"的功能，但你心里清楚目标用户大概率不需要它。你会？", options: [
+    { text: "加上，好玩的功能能增加产品吸引力", score: 0 },
+    { text: "先做成小开关，上线看数据", score: 1 },
+    { text: "放下，只做用户需要的事", score: 2 },
+    { text: "放进\"想法池\"，当用户研究中出现明确需求证据时再评估是否做", score: 3 }
+  ]},
+  { id: "1-3", dim: "user_orientation", scenario: "你的产品上线后，一个用户对你说\"这个功能真好用\"。你下一步最应该做的是？", options: [
+    { text: "高兴，截图发到社交平台宣传", score: 0 },
+    { text: "追问一句\"哪里好用\"，并请 TA 描述具体使用场景", score: 3 },
+    { text: "问 TA 是否愿意付费", score: 2 },
+    { text: "记住这个好评，继续开发下一个功能", score: 1 }
+  ]},
+  { id: "1-4", dim: "user_orientation", scenario: "访谈中发现，用户 A 希望产品\"尽量简单、开箱即用\"，用户 B 希望\"功能强大、可深度定制\"。你会？", options: [
+    { text: "两个都满足，做两种模式", score: 0 },
+    { text: "问更多用户，看哪边声音大", score: 1 },
+    { text: "以用户基数大的那类用户为准", score: 2 },
+    { text: "回到产品定位：先明确这款产品为谁解决什么核心问题，据此确定主目标用户", score: 3 }
+  ]},
+  /* —— 价值判断 —— */
+  { id: "2-1", dim: "value_judgment", scenario: "朋友问你：\"你的产品和市面上已有的 XX 产品最大的区别是什么？\"你会怎么回答？", options: [
+    { text: "\"我们的界面更好看、技术更先进\"", score: 0 },
+    { text: "\"我们功能更多、更全\"", score: 1 },
+    { text: "\"我们解决的是 XX 人群在 XX 场景下的问题，现有产品做不到 / 做得不好\"", score: 3 },
+    { text: "\"我们免费，他们收费\"", score: 2 }
+  ]},
+  { id: "2-2", dim: "value_judgment", scenario: "你的 MVP 做出来了。你判断它是否\"有用户价值\"的最核心标准是？", options: [
+    { text: "下载量 / 访问量高", score: 0 },
+    { text: "用户说\"这个产品不错\"", score: 1 },
+    { text: "用户主动推荐给身边的人", score: 2 },
+    { text: "用户在没有提醒的情况下，自己反复回来使用", score: 3 }
+  ]},
+  { id: "2-3", dim: "value_judgment", scenario: "你在评估一个新点子是否值得做时，下面哪句话更能代表\"产品思维\"？", options: [
+    { text: "\"技术上我完全能实现\"", score: 0 },
+    { text: "\"先做出来看市场反应\"", score: 1 },
+    { text: "\"市场上还没有人做\"", score: 2 },
+    { text: "\"我能把这个问题讲清楚：谁、在什么场景、遇到了什么问题、现在是怎么解决的\"", score: 3 }
+  ]},
+  { id: "2-4", dim: "value_judgment", scenario: "你要向用户介绍你的产品。哪一句话最符合产品思维的表达？", options: [
+    { text: "\"我们的产品用了最新的 AI 大模型技术\"", score: 0 },
+    { text: "\"我们是一款全新的一站式智能办公平台\"", score: 1 },
+    { text: "\"比 Excel 更智能\"", score: 2 },
+    { text: "\"帮你 10 分钟搞定原本要 2 小时的手工报表\"", score: 3 }
+  ]},
+  /* —— 验证意识 —— */
+  { id: "3-1", dim: "validation", scenario: "你的产品开发到一半，你发现用户反馈和最初设想差别很大。你会？", options: [
+    { text: "增加更多功能，覆盖更多用户需求", score: 0 },
+    { text: "继续按原计划开发完，再根据反馈迭代", score: 1 },
+    { text: "先上线看看数据再说", score: 2 },
+    { text: "停下来，重新梳理用户需求，必要时调整方向", score: 3 }
+  ]},
+  { id: "3-2", dim: "validation", scenario: "产品还只有想法、一行代码没写时，你认为最应该先做的是？", options: [
+    { text: "写详细的需求文档", score: 0 },
+    { text: "画原型图，把交互想清楚", score: 1 },
+    { text: "找几位目标用户聊一聊，确认痛点真实存在", score: 2 },
+    { text: "用低成本的落地页 / 文案描述产品价值，看有多少人愿意留下联系方式或预注册", score: 3 }
+  ]},
+  { id: "3-3", dim: "validation", scenario: "定义 MVP（最小可行产品）时，下面哪项标准最符合\"最小\"的本意？", options: [
+    { text: "功能最少的那一版", score: 1 },
+    { text: "技术实现最简单的那一版", score: 0 },
+    { text: "能用的一版", score: 2 },
+    { text: "刚好能验证\"用户是否真的需要并愿意使用\"的最少功能组合", score: 3 }
+  ]},
+  { id: "3-4", dim: "validation", scenario: "你做了一个工具类产品，想验证\"有没有人愿意用\"。哪个指标最有说服力？", options: [
+    { text: "网页浏览量", score: 0 },
+    { text: "用户调研问卷里\"愿意用\"的勾选", score: 1 },
+    { text: "注册用户数", score: 2 },
+    { text: "次日留存率", score: 3 }
+  ]},
+  /* —— 商业闭环 —— */
+  { id: "4-1", dim: "business_loop", scenario: "你的产品做出来了，功能完整、体验不错。接下来最重要的是？", options: [
+    { text: "继续完善功能，打磨体验", score: 1 },
+    { text: "开始做推广，让更多人知道", score: 2 },
+    { text: "思考商业模式，确定如何变现", score: 2 },
+    { text: "找到第一批种子用户，观察他们的使用行为", score: 3 }
+  ]},
+  { id: "4-2", dim: "business_loop", scenario: "你的产品有用户在用但暂时免费。你认为什么时候最应该开始考虑商业化？", options: [
+    { text: "等有竞品开始收费时再跟进", score: 0 },
+    { text: "用户量达到一定规模后（如 10 万）", score: 1 },
+    { text: "产品上线时就同步设计付费点", score: 2 },
+    { text: "观察到一批用户高频使用、离不开产品时", score: 3 }
+  ]},
+  { id: "4-3", dim: "business_loop", scenario: "你要为产品设计付费模式。以下哪种做法最符合产品思维？", options: [
+    { text: "暂时不想，等产品做大再说", score: 0 },
+    { text: "参照同类产品定价，直接照搬", score: 1 },
+    { text: "定一个低价，先跑量再提价", score: 2 },
+    { text: "从用户获得的\"价值大小\"出发设计付费档位（免费版够用、付费版解决更大问题）", score: 3 }
+  ]},
+  { id: "4-4", dim: "business_loop", scenario: "判断一款产品\"是否成立\"，下面哪个信号最硬？", options: [
+    { text: "被媒体报道过", score: 0 },
+    { text: "用户量很大", score: 1 },
+    { text: "用户每天都能想起它并使用", score: 2 },
+    { text: "有人愿意为它付费", score: 3 }
+  ]},
+  /* —— 取舍能力 —— */
+  { id: "5-1", dim: "tradeoff", scenario: "你的功能清单有 20 个候选功能，但你只能先做 3 个。你按什么标准排优先级？", options: [
+    { text: "开发难度最低的 3 个，先快速上线", score: 1 },
+    { text: "你觉得最有创意的 3 个", score: 0 },
+    { text: "用户提得最多的 3 个", score: 2 },
+    { text: "最能解决目标用户核心问题、且没有它们产品就不成立的 3 个", score: 3 }
+  ]},
+  { id: "5-2", dim: "tradeoff", scenario: "有用户强烈要求一个\"好用但偏离产品定位\"的功能（例如：一个记账 App 要加社交功能）。你会？", options: [
+    { text: "加，用户是上帝", score: 0 },
+    { text: "一口回绝，坚持定位不动摇", score: 1 },
+    { text: "做个小版本试水，看数据再决定", score: 2 },
+    { text: "不加，但记录需求，观察是否反复出现、是否与定位相关，用证据决定", score: 3 }
+  ]},
+  { id: "5-3", dim: "tradeoff", scenario: "你的产品基本能用，但还有 10 个你想优化的细节。你会？", options: [
+    { text: "全部优化完再上线，给用户最好的第一印象", score: 0 },
+    { text: "找几个朋友内测，改完他们提的问题再上线", score: 1 },
+    { text: "优化最重要的 3 个细节后上线", score: 2 },
+    { text: "立即上线，用真实用户反馈决定优化顺序", score: 3 }
+  ]},
+  { id: "5-4", dim: "tradeoff", scenario: "产品迭代时，下面哪种做法最体现\"取舍能力\"？", options: [
+    { text: "把所有想法都放进路线图，尽快都做", score: 0 },
+    { text: "只做用户点名的功能", score: 1 },
+    { text: "等功能冲突了再临时决定", score: 1 },
+    { text: "明确列出\"本阶段不做\"的功能清单，并说明理由", score: 3 }
+  ]}
+];
+
+/* ========== 维度与建议数据（冻结题库 v1.1，第四章） ========== */
+var DIMENSIONS = {
+  user_orientation: { key: "user_orientation", name: "用户导向", intro: "这个维度衡量你有多习惯以“目标用户的真实需求”作为产品决策依据。分数越低，越容易凭自己的感觉做产品，做出“自我感动”的功能。", tips: [
+    { tier: "basic", label: "低分建议", list: [
+      "写下 3 个候选目标用户画像：年龄、身份、典型场景、现在用什么方式解决；画像越具体越好，先别急着列功能。",
+      "本周围绕其中一个画像约 3 场用户访谈（每场 30 分钟内），只问“现在怎么做、哪里最麻烦”，全程不提你的产品。",
+      "把“我觉得有用”升级为“用户说有用”：拿不准的功能先放进想法池，凑齐用户证据再决定做不做。",
+      "建一个“用户原话本”：把访谈与评论里用户的原话逐条记下来，作为后续决策依据。"
+    ]},
+    { tier: "advanced", label: "中等建议", list: [
+      "把好评升级成“行为证据”：追问用户在什么场景用、多久用一次、替代过什么方案。",
+      "做一次“功能证据审计”：为每个功能写一条用户证据；写不出的功能标记为候选删除。",
+      "学会区分目标用户与路人：先设计 1 道筛选问题确认对方确实身处目标场景，再做深度访谈。"
+    ]},
+    { tier: "challenge", label: "高分挑战", list: [
+      "试着用一句话回答：“谁、在什么场景下、非用你不可？”并把“非用不可”落实成一个可观察的行为指标（例如周回访率 ≥ 40%），持续追踪。"
+    ]}
+  ]},
+  value_judgment: { key: "value_judgment", name: "价值判断", intro: "这个维度衡量你是否能清晰说出产品的核心价值与差异化。分数越低，说明越是把“实现能力”或“功能数量”误当成产品价值，用户感知不到购买或使用的理由。", tips: [
+    { tier: "basic", label: "低分建议", list: [
+      "用模板重写产品介绍：为【某类人群】解决【某个场景】下的【某个问题】，带来【可感知的结果】；写不出来就先别推广。",
+      "找 3 款直接竞品，各写一行“它做得好的地方”和一行“它还没解决、而你的目标用户在乎的问题”。",
+      "把所有技术/界面/功能型表述（“用了 AI 大模型”“功能更全”）改成用户收益表述（“省时间、省钱、省麻烦”）。"
+    ]},
+    { tier: "advanced", label: "中等建议", list: [
+      "为产品定义 1 个北极星指标（如周留存、每周完成次数），并写清它为什么能代表价值兑现。",
+      "做一次“价值假设清单”：写下产品成立所需的 5 个关键假设，逐个标注验证状态（未验证 / 已验证 / 证伪）。"
+    ]},
+    { tier: "challenge", label: "高分挑战", list: [
+      "为产品写一句“负面价值主张”：你的产品刻意不为谁服务、坚决不做什么？回答不出来，说明定位仍有模糊地带。"
+    ]}
+  ]},
+  validation: { key: "validation", name: "验证意识", intro: "这个维度衡量你是否习惯“先验证、再开发”。分数越低，越可能把时间和资源先投在实现上，等做出来才发现方向错了，返工成本最高。", tips: [
+    { tier: "basic", label: "低分建议", list: [
+      "下一个想法先用 48 小时做“落地页 / 预注册验证”：不发产品，只发价值描述，看多少人留下联系方式。",
+      "开展 3-5 场用户访谈，只准备问题不做产品；访谈后把用户原话整理成证据卡片。",
+      "定义 MVP 前先写一句“验证目标”：这一版上线是为了验证什么假设，而不是“把功能做出来”。"
+    ]},
+    { tier: "advanced", label: "中等建议", list: [
+      "建“验证看板”：每个关键假设一行，标注验证方法（访谈 / 落地页 / 数据）、结果、下一步动作。",
+      "学会区分指标层级（曝光 > 访问 > 使用 > 留存 > 付费），始终优先盯“离真实行为最近”的指标。"
+    ]},
+    { tier: "challenge", label: "高分挑战", list: [
+      "在正式开发前，用最小人力做一次“假门测试”完整闭环（价值描述 → 预注册 → 回访），把结果与结论写进验证看板。"
+    ]}
+  ]},
+  business_loop: { key: "business_loop", name: "商业闭环", intro: "这个维度衡量你是否想清楚产品如何可持续运转并获得回报。分数越低，越容易沉浸在“做出好东西”里，忽略谁能付费、为什么付费，导致产品难以长期存活。", tips: [
+    { tier: "basic", label: "低分建议", list: [
+      "写出三个问题的答案：谁会为你的产品付钱？他为什么付？他大概愿意付多少？写不出来说明商业闭环还没成立。",
+      "观察产品里“用户用得最深的功能”，思考它对应什么付费档位（免费 / 标准 / 专业）。",
+      "每周固定留 30 分钟思考商业闭环，不要把变现推迟到“做大以后”。"
+    ]},
+    { tier: "advanced", label: "中等建议", list: [
+      "找 3-10 个高频用户做访谈，记录“产品为你省了什么 / 赚了什么”，形成价值-价格映射表。",
+      "设计一版“免费 + 付费”的档位实验，用真实付费转化率修正定价假设，而不是照搬竞品定价。"
+    ]},
+    { tier: "challenge", label: "高分挑战", list: [
+      "用一句话回答：如果产品明天收费，当前有多少比例的“价值核心用户”愿意留下？低于你的预期，说明价值验证还不够、商业闭环仍有缺口。"
+    ]}
+  ]},
+  tradeoff: { key: "tradeoff", name: "取舍能力", intro: "这个维度衡量你敢不敢、会不会做减法。分数越低，越容易功能贪多、被个别用户牵着走、追求完美而迟迟不上线，最终产品失去聚焦。", tips: [
+    { tier: "basic", label: "低分建议", list: [
+      "本迭代开始前先写“不做清单”：明确列出本阶段砍掉的功能及理由，贴在项目看板最上方。",
+      "用“核心问题关联度”给候选功能打分（1-5 分），只做 3 分以上的功能。",
+      "用户提需求时先回应“我记下了”，再追问两句：这个问题你多久遇到一次？现在的替代方案是什么？"
+    ]},
+    { tier: "advanced", label: "中等建议", list: [
+      "为每个“暂不做”的需求建立证据跟踪：记录提出次数与场景，用证据决定是否升级为必做。",
+      "每次迭代结束做一次“减法复盘”：这个版本砍了什么？砍掉后用户数据有无变化？"
+    ]},
+    { tier: "challenge", label: "高分挑战", list: [
+      "主动砍掉一个“大家都在做、但你判断与核心价值无关”的功能，量化砍掉后的留存变化，把结果写成复盘。"
+    ]}
+  ]}
+};
+
+var DIM_ORDER = ["user_orientation", "value_judgment", "validation", "business_loop", "tradeoff"];
+
+/* ========== 状态 ========== */
+var state = {
+  paper: [],      // 本次测试抽取的题目（含乱序选项）
+  answers: [],    // 每题所选分值
+  current: 0
+};
+var STORAGE_KEY = "pmq_history_v1";
+
+/* ========== 工具 ========== */
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function show(name) {
+  var secs = document.querySelectorAll(".section");
+  for (var i = 0; i < secs.length; i++) secs[i].classList.remove("active");
+  document.getElementById(name).classList.add("active");
+  window.scrollTo(0, 0);
+}
+function escText(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+function todayStr() {
+  var d = new Date();
+  return (d.getMonth() + 1) + "月" + d.getDate() + "日";
+}
+
+/* ========== 抽题（每维度 4 题随机抽 2 题，共 10 题；选项随机乱序） ========== */
+function buildPaper() {
+  var picked = [];
+  DIM_ORDER.forEach(function (dimKey) {
+    var pool = QUESTIONS.filter(function (q) { return q.dim === dimKey; });
+    var two = shuffle(pool).slice(0, 2);
+    two.forEach(function (q) {
+      picked.push({
+        id: q.id,
+        dim: q.dim,
+        scenario: q.scenario,
+        options: shuffle(q.options)
+      });
+    });
+  });
+  // 整体再洗一次顺序，避免固定维度顺序带来的位置惯性
+  return shuffle(picked);
+}
+
+/* ========== 首页 ========== */
+function renderHistory() {
+  var list = [];
+  try {
+    list = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  } catch (e) { list = []; }
+  var ul = document.getElementById("historyList");
+  if (!list.length) {
+    ul.innerHTML = '<li class="empty-tip" style="border:none;">还没有测试记录，点击上方开始。</li>';
+    return;
+  }
+  var html = "";
+  list.slice(0, 5).forEach(function (r) {
+    html += '<li><span>' + escText(r.date) + '</span>' +
+            '<span><span class="score">' + escText(r.score) + ' 分</span><span class="lvl">' + escText(r.level) + ' 级</span></span></li>';
+  });
+  ul.innerHTML = html;
+}
+
+/* ========== 答题 ========== */
+function startQuiz() {
+  state.paper = buildPaper();
+  state.answers = [];
+  state.current = 0;
+  show("quiz");
+  renderQuestion();
+}
+function renderQuestion() {
+  var q = state.paper[state.current];
+  var idx = state.current;
+  var total = state.paper.length;
+  document.getElementById("quizProgressText").textContent = "第 " + (idx + 1) + " / " + total + " 题";
+  document.getElementById("quizDimLabel").textContent = DIMENSIONS[q.dim].name;
+  document.getElementById("progressBar").style.width = ((idx / total) * 100) + "%";
+  document.getElementById("scenarioText").textContent = q.scenario;
+
+  var box = document.getElementById("optionsBox");
+  box.innerHTML = "";
+  q.options.forEach(function (opt, oi) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "option";
+    btn.textContent = opt.text;
+    btn.setAttribute("data-idx", oi);
+    btn.addEventListener("click", function () { selectOption(oi); });
+    box.appendChild(btn);
+  });
+
+  document.getElementById("quizFooter").classList.remove("show");
+}
+function selectOption(oi) {
+  var btns = document.querySelectorAll("#optionsBox .option");
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove("sel");
+  btns[oi].classList.add("sel");
+  document.getElementById("quizFooter").classList.add("show");
+  state.answers[state.current] = state.paper[state.current].options[oi].score;
+  var isLast = state.current === state.paper.length - 1;
+  document.getElementById("btnNext").textContent = isLast ? "查看结果" : "下一题";
+}
+function nextQuestion() {
+  if (state.current < state.paper.length - 1) {
+    state.current++;
+    renderQuestion();
+  } else {
+    finishQuiz();
+  }
+}
+
+/* ========== 评分 ========== */
+function computeResult() {
+  var total = 0;
+  var dimTotal = {};
+  DIM_ORDER.forEach(function (d) { dimTotal[d] = 0; });
+  state.paper.forEach(function (q, i) {
+    var s = state.answers[i];
+    total += s;
+    dimTotal[q.dim] += s;
+  });
+  var index = Math.round((total / 30) * 100);
+  var dims = {};
+  DIM_ORDER.forEach(function (d) {
+    dims[d] = Math.round((dimTotal[d] / 6) * 100);
+  });
+  return { index: index, dims: dims };
+}
+function levelInfo(index) {
+  if (index >= 90) return { lvl: "S", desc: "产品思维成熟，具备完整的产品判断力。" };
+  if (index >= 75) return { lvl: "A", desc: "产品思维良好，有意识，但某些维度有盲区。" };
+  if (index >= 60) return { lvl: "B", desc: "产品思维入门，有基本意识，但系统性不足。" };
+  if (index >= 40) return { lvl: "C", desc: "产品思维薄弱，容易陷入“自嗨式开发”。" };
+  return { lvl: "D", desc: "产品思维缺失，需要系统补课。" };
+}
+function tierOf(score) {
+  if (score < 60) return { tier: "basic", label: "低分建议" };
+  if (score < 80) return { tier: "advanced", label: "中等建议" };
+  return { tier: "challenge", label: "高分挑战" };
+}
+
+/* ========== 雷达图（SVG） ========== */
+function radarSVG(dims) {
+  var W = 340, H = 260, cx = 170, cy = 130, R = 92;
+  var n = DIM_ORDER.length;
+  function pt(i, r) {
+    var ang = -Math.PI / 2 + (2 * Math.PI * i) / n;
+    return [cx + r * Math.cos(ang), cy + r * Math.sin(ang)];
+  }
+  function poly(pts) {
+    return pts.map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ");
+  }
+  var html = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="五维度雷达图">';
+  // 网格（4 层）
+  var levels = [0.25, 0.5, 0.75, 1];
+  for (var li = 0; li < levels.length; li++) {
+    var pts = [];
+    for (var i = 0; i < n; i++) pts.push(pt(i, R * levels[li]));
+    html += '<polygon points="' + poly(pts) + '" fill="none" stroke="#e5e7eb" stroke-width="1"/>';
+  }
+  // 轴线
+  for (var i2 = 0; i2 < n; i2++) {
+    var p0 = pt(i2, R);
+    html += '<line x1="' + cx + '" y1="' + cy + '" x2="' + p0[0].toFixed(1) + '" y2="' + p0[1].toFixed(1) + '" stroke="#e5e7eb" stroke-width="1"/>';
+  }
+  // 数据多边形
+  var dataPts = [];
+  for (var i3 = 0; i3 < n; i3++) {
+    var dv = dims[DIM_ORDER[i3]];
+    dataPts.push(pt(i3, R * (Math.min(100, Math.max(0, dv)) / 100)));
+  }
+  html += '<polygon points="' + poly(dataPts) + '" fill="#111111" fill-opacity="0.08" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"/>';
+  for (var i4 = 0; i4 < n; i4++) {
+    var dp = dataPts[i4];
+    html += '<circle cx="' + dp[0].toFixed(1) + '" cy="' + dp[1].toFixed(1) + '" r="3" fill="#111111"/>';
+  }
+  // 维度标签
+  for (var i5 = 0; i5 < n; i5++) {
+    var name = DIMENSIONS[DIM_ORDER[i5]].name;
+    var lp = pt(i5, R + 20);
+    var anchor = "middle";
+    if (i5 === 0) anchor = "middle";
+    else if (Math.abs(lp[0] - cx) < 6) anchor = "middle";
+    else anchor = lp[0] > cx ? "start" : "end";
+    html += '<text x="' + lp[0].toFixed(1) + '" y="' + (lp[1] + 4).toFixed(1) + '" text-anchor="' + anchor + '" font-size="12" fill="#6b7280">' + escText(name) + '</text>';
+  }
+  html += '</svg>';
+  return html;
+}
+
+/* ========== 结果页 ========== */
+function finishQuiz() {
+  var res = computeResult();
+  var li = levelInfo(res.index);
+  document.getElementById("resultScore").textContent = res.index;
+  document.getElementById("resultLevel").textContent = li.lvl + " 级";
+  document.getElementById("resultDesc").textContent = li.desc;
+
+  document.getElementById("radarBox").innerHTML = radarSVG(res.dims);
+
+  // 维度得分列表
+  var dl = "";
+  DIM_ORDER.forEach(function (d) {
+    dl += '<div class="dim-item"><span class="dim-name">' + escText(DIMENSIONS[d].name) + '</span><span class="dim-val">' + res.dims[d] + ' 分</span></div>';
+  });
+  document.getElementById("dimList").innerHTML = dl;
+
+  // 分维度建议：取得分最低的 1-2 个维度给完整建议，其余仅展示解读
+  var sorted = DIM_ORDER.slice().sort(function (a, b) { return res.dims[a] - res.dims[b]; });
+  var focus = res.dims[sorted[1]] < 80 ? 2 : 1; // 次低分不足 80 时给出 2 个；否则只给最低的 1 个
+  var focusSet = {};
+  for (var f = 0; f < focus; f++) focusSet[sorted[f]] = true;
+
+  var ab = "";
+  sorted.forEach(function (d) {
+    var dim = DIMENSIONS[d];
+    var score = res.dims[d];
+    if (focusSet[d]) {
+      var tier = tierOf(score);
+      var tips = null;
+      for (var t = 0; t < dim.tips.length; t++) {
+        if (dim.tips[t].tier === tier.tier) { tips = dim.tips[t].list; break; }
+      }
+      ab += '<div class="advice-card">' +
+            '<div class="a-dim">' + escText(dim.name) + '</div>' +
+            '<div class="a-score">' + score + ' 分</div>' +
+            '<div class="a-intro">' + escText(dim.intro) + '</div>' +
+            '<div class="tier-label">' + escText(tier.label) + '</div>' +
+            '<ol>' + tips.map(function (tip) { return "<li>" + escText(tip) + "</li>"; }).join("") + '</ol>' +
+            '</div>';
+    } else {
+      ab += '<div class="brief-card"><div class="b-row"><span class="b-dim">' + escText(dim.name) + '</span><span class="b-score">' + score + ' 分</span></div><div class="b-intro">' + escText(dim.intro) + '</div></div>';
+    }
+  });
+  document.getElementById("adviceBox").innerHTML = ab;
+
+  // 保存历史
+  saveHistory(res.index, li.lvl);
+
+  show("result");
+}
+function saveHistory(score, lvl) {
+  var list = [];
+  try { list = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch (e) { list = []; }
+  list.unshift({ date: todayStr(), score: score, level: lvl });
+  list = list.slice(0, 10);
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch (e) {}
+  renderHistory();
+}
+
+/* ========== 事件绑定 ========== */
+document.getElementById("btnStart").addEventListener("click", startQuiz);
+document.getElementById("btnNext").addEventListener("click", nextQuestion);
+document.getElementById("btnRetry").addEventListener("click", function () { startQuiz(); });
+document.getElementById("btnHome").addEventListener("click", function () {
+  renderHistory();
+  show("home");
+});
+
+renderHistory();
+</script>
+</body>
+</html>
